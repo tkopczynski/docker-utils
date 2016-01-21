@@ -11,6 +11,7 @@ import (
 )
 
 const dockerSocketPath string = "/var/run/docker.sock"
+const dockerSocketUrl string = "unix:///var/run/docker.sock"
 
 func connectToDocker() (*dockerclient.DockerClient, error) {
 	dockerHost := os.Getenv("DOCKER_HOST")
@@ -23,7 +24,7 @@ func connectToDocker() (*dockerclient.DockerClient, error) {
 			log.Fatalf("Could not stat docker unix socket %s: %s\n", dockerSocketPath, err)
 		}
 
-		dockerHost = dockerSocketPath
+		dockerHost = dockerSocketUrl
 	} else {
 		certPath := os.Getenv("DOCKER_CERT_PATH")
 
