@@ -10,7 +10,7 @@ import (
 	"github.com/samalba/dockerclient"
 )
 
-const dockerSocketPath string = "unix:///var/run/docker.socket"
+const dockerSocketPath string = "/var/run/docker.sock"
 
 func connectToDocker() (*dockerclient.DockerClient, error) {
 	dockerHost := os.Getenv("DOCKER_HOST")
