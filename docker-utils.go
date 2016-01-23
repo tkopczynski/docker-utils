@@ -2,12 +2,14 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/samalba/dockerclient"
+	// TODO: using fork repo for now, pull request pending
+	"github.com/tkopczynski/dockerclient"
 )
 
 const dockerSocketPath string = "/var/run/docker.sock"
@@ -45,6 +47,38 @@ func connectToDocker() (*dockerclient.DockerClient, error) {
 
 }
 
+func createSingleValueFilter(name string, value string) (string, error) {
+	filters := make(map[string][]string)
+
+	val := make([]string, 1)
+	val[0] = value
+
+	filters[name] = val
+
+	jsonFilters, err := json.Marshal(filters)
+
+	return string(jsonFilters), err
+}
+
+func removeDanglingImages(docker *dockerclient.DockerClient, force bool) {
+	jsonFilters, err := createSingleValueFilter("dangling", "true")
+
+	if err != nil {
+		log.Fatalf("Encoding JSON: %s\n", err)
+	}
+
+	images, err := docker.ListImages(true, jsonFilters)
+
+	if err != nil {
+		log.Fatalf("Listing images: %s\n", err)
+	}
+
+	for _, image := range images {
+		fmt.Println(image.Id)
+		docker.RemoveImage(image.Id, force)
+	}
+}
+
 func removeAllContainers(docker *dockerclient.DockerClient, force bool) {
 	containers, err := docker.ListContainers(true, force, "")
 
@@ -60,6 +94,7 @@ func removeAllContainers(docker *dockerclient.DockerClient, force bool) {
 
 func main() {
 	rmAllPtr := flag.Bool("rm-all", false, "Command: removes all containers, unless it's running. If used with -force option, removes all containers (including running)")
+	rmiDangling := flag.Bool("rmi-dangling", false, "Command: removes all dangling images (untagged)")
 	forcePtr := flag.Bool("force", false, "Adds force option to command.")
 
 	flag.Parse()
@@ -73,6 +108,8 @@ func main() {
 	switch {
 	case *rmAllPtr == true:
 		removeAllContainers(docker, *forcePtr)
+	case *rmiDangling == true:
+		removeDanglingImages(docker, *forcePtr)
 	default:
 		fmt.Println("Nothing to do, please specify command.")
 		fmt.Println()
