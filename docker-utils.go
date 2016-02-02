@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	// TODO: using fork repo for now, pull request pending
 	"github.com/tkopczynski/docker-utils/commands"
+	// TODO: using fork repo for now, pull request pending
 	"github.com/tkopczynski/dockerclient"
 )
 
