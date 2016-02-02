@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +9,7 @@ import (
 	"strings"
 
 	// TODO: using fork repo for now, pull request pending
+	"github.com/tkopczynski/docker-utils/commands"
 	"github.com/tkopczynski/dockerclient"
 )
 
@@ -46,51 +46,6 @@ func connectToDocker() (*dockerclient.DockerClient, error) {
 
 	return dockerclient.NewDockerClient(dockerHost, &tlsConfig)
 
-}
-
-func createSingleValueFilter(name string, value string) (string, error) {
-	filters := make(map[string][]string)
-
-	val := make([]string, 1)
-	val[0] = value
-
-	filters[name] = val
-
-	jsonFilters, err := json.Marshal(filters)
-
-	return string(jsonFilters), err
-}
-
-func removeDanglingImages(docker *dockerclient.DockerClient, force bool) {
-	jsonFilters, err := createSingleValueFilter("dangling", "true")
-
-	if err != nil {
-		log.Fatalf("Encoding JSON: %s\n", err)
-	}
-
-	images, err := docker.ListImages(true, jsonFilters)
-
-	if err != nil {
-		log.Fatalf("Listing images: %s\n", err)
-	}
-
-	for _, image := range images {
-		fmt.Println(image.Id)
-		docker.RemoveImage(image.Id, force)
-	}
-}
-
-func removeAllContainers(docker *dockerclient.DockerClient, force bool) {
-	containers, err := docker.ListContainers(true, force, "")
-
-	if err != nil {
-		log.Fatalf("Listing containers: %s\n", err)
-	}
-
-	for _, container := range containers {
-		fmt.Println(container.Id)
-		docker.RemoveContainer(container.Id, force, false)
-	}
 }
 
 func main() {
@@ -131,9 +86,9 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "rm-all":
-		removeAllContainers(docker, *forcePtr)
+		commands.RemoveAllContainers(docker, *forcePtr)
 	case "rmi-dangling":
-		removeDanglingImages(docker, *forcePtr)
+		commands.RemoveDanglingImages(docker, *forcePtr)
 	default:
 		fmt.Println("Wrong command specified")
 		fmt.Println()
