@@ -11,6 +11,7 @@ import (
 	"github.com/tkopczynski/docker-utils/commands"
 	// TODO: using fork repo for now, pull request pending
 	"github.com/tkopczynski/dockerclient"
+	"time"
 )
 
 const dockerSocketPath string = "/var/run/docker.sock"
@@ -62,7 +63,9 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	forcePtr := flag.Bool("force", false, "Adds force option to command.")
+	force := flag.Bool("force", false, "Adds force option to command.")
+	timeout := flag.Int("timeout", 1, "Wait timeout in seconds")
+	url := flag.String("url", "", "Url to wait for")
 
 	flag.Parse()
 
@@ -77,18 +80,37 @@ func main() {
 		os.Exit(1)
 	}
 
-	docker, err := connectToDocker()
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "connect to Docker Engine: %s\n", err)
-		os.Exit(1)
-	}
-
 	switch flag.Arg(0) {
 	case "rm-all":
-		commands.RemoveAllContainers(docker, *forcePtr)
+		docker, err := connectToDocker()
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "connect to Docker Engine: %s\n", err)
+			os.Exit(1)
+		}
+
+		commands.RemoveAllContainers(docker, *force)
 	case "rmi-dangling":
-		commands.RemoveDanglingImages(docker, *forcePtr)
+		docker, err := connectToDocker()
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "connect to Docker Engine: %s\n", err)
+			os.Exit(1)
+		}
+
+		commands.RemoveDanglingImages(docker, *force)
+	case "wait":
+		if *url == "" {
+			fmt.Fprintln(os.Stderr, "url option cannot be empty when using wait command")
+			flag.Usage()
+			os.Exit(1)
+		}
+
+		result := commands.WaitForApplication(*url, time.Duration(*timeout) * time.Second)
+
+		if !result {
+			os.Exit(1)
+		}
 	default:
 		fmt.Println("Wrong command specified")
 		fmt.Println()
