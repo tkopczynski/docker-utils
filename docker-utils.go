@@ -10,7 +10,7 @@ import (
 
 	"github.com/tkopczynski/docker-utils/commands"
 	// TODO: using fork repo for now, pull request pending
-	"github.com/tkopczynski/dockerclient"
+	"github.com/tkopczynski/docker-utils/Godeps/_workspace/src/github.com/tkopczynski/dockerclient"
 )
 
 const dockerSocketPath string = "/var/run/docker.sock"

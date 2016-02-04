@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/docker/go-units"
+	"github.com/tkopczynski/docker-utils/Godeps/_workspace/src/github.com/docker/go-units"
 )
 
 type ContainerConfig struct {
