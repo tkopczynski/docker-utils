@@ -1,0 +1,15 @@
+{
+	"ImportPath": "github.com/tkopczynski/docker-utils/commands",
+	"GoVersion": "go1.5",
+	"Deps": [
+		{
+			"ImportPath": "github.com/docker/go-units",
+			"Comment": "v0.1.0-21-g0bbddae",
+			"Rev": "0bbddae09c5a5419a8c6dcdd7ff90da3d450393b"
+		},
+		{
+			"ImportPath": "github.com/tkopczynski/dockerclient",
+			"Rev": "f47912aea53043426a25d3d95c61d1d94660b8b0"
+		}
+	]
+}
