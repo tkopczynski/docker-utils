@@ -58,6 +58,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, "\tremoves all containers, unless running. If used with -force option, removes all containers (including running)")
 		fmt.Fprintln(os.Stderr, "  rmi-dangling")
 		fmt.Fprintln(os.Stderr, "\tremoves all dangling images (untagged)")
+		fmt.Fprintln(os.Stderr, "  wait")
+		fmt.Fprintln(os.Stderr, "\twaits for 200 status code from URL specified in -url option. Timeout can be set with optional -timeout flag.")
 		fmt.Fprintln(os.Stderr, "\nOptions:")
 
 		flag.PrintDefaults()
@@ -65,7 +67,7 @@ func main() {
 
 	force := flag.Bool("force", false, "Adds force option to command.")
 	timeout := flag.Int("timeout", 1, "Wait timeout in seconds")
-	url := flag.String("url", "", "Url to wait for")
+	url := flag.String("url", "", "Url to wait for (required when using wait command)")
 
 	flag.Parse()
 
@@ -106,7 +108,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		result := commands.WaitForApplication(*url, time.Duration(*timeout) * time.Second)
+		result := commands.WaitForApplication(*url, time.Duration(*timeout)*time.Second)
 
 		if !result {
 			os.Exit(1)

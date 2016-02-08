@@ -13,7 +13,7 @@ func WaitForApplication(url string, timeout time.Duration) bool {
 
 	resultChannel := make(chan bool)
 
-	var timeoutChannel <- chan time.Time
+	var timeoutChannel <-chan time.Time
 
 	if timeout == 0 {
 		timeoutChannel = nil
@@ -52,7 +52,7 @@ func sendRequest(httpClient http.Client, url string, resultChannel chan bool) {
 
 	result := response.StatusCode == http.StatusOK
 
-	if ! result {
+	if !result {
 		log.Printf("sendRequest: received status code: %d\n", response.StatusCode)
 	}
 

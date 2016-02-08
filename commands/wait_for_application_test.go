@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-
 func executeQuery(handler http.HandlerFunc, timeout time.Duration) bool {
 	server := httptest.NewServer(handler)
 	defer server.Close()
@@ -35,7 +34,7 @@ func TestServerNotResponding(t *testing.T) {
 		fmt.Fprintln(writer, "Hello, Test")
 	})
 
-	result := executeQuery(handlerFunc, 100 * time.Millisecond)
+	result := executeQuery(handlerFunc, 100*time.Millisecond)
 
 	if result {
 		t.FailNow()
@@ -47,7 +46,7 @@ func TestServerWrongStatusCode(t *testing.T) {
 		writer.WriteHeader(http.StatusNotFound)
 	})
 
-	result := executeQuery(handlerFunc, 100 * time.Millisecond)
+	result := executeQuery(handlerFunc, 100*time.Millisecond)
 
 	if result {
 		t.FailNow()
@@ -61,16 +60,16 @@ func TestServerStartsSendingOKStatusCodeAfterSomeTime(t *testing.T) {
 		applicationStillStarting := time.After(500 * time.Millisecond)
 
 		select {
-		case <- applicationStillStarting:
+		case <-applicationStillStarting:
 			writer.WriteHeader(http.StatusNotFound)
 		case <-applicationStarted:
 			writer.WriteHeader(http.StatusOK)
 		}
 	})
 
-	result := executeQuery(handlerFunc, 10 * time.Second)
+	result := executeQuery(handlerFunc, 10*time.Second)
 
-	if ! result {
+	if !result {
 		t.FailNow()
 	}
 
